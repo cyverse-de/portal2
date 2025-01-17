@@ -290,7 +290,7 @@ async function approveDataWatch(request) {
     await sendDataWatchSignupMessage(request,
     `${intro}
 
-    Your request has been sent to CyVerse staff and will be review soon.`
+    Your request has been sent to CyVerse staff and will be reviewed soon.`
     );
 }
 

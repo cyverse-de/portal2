@@ -41,7 +41,7 @@ const Account = () => {
   const [user, setUser] = useUser()
   const [sentEmails, setSentEmails] = useState([])
   const [institutions, setInstitutions] = useState()
-  const [institutionKeyword, setInstitutionKeyword] = useState(user.institution)
+  const [institutionKeyword, setInstitutionKeyword] = useState(user && user.institution)
   const [institutionError, setInstitutionError] = useState()
   const [forms, setForms] = useState()
   const [inputDebounce, setInputDebounce] = useState(null)

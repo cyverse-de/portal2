@@ -46,7 +46,7 @@ const menuItems = [
         items: [
             {
                 label: 'Getting Started',
-                path: 'https://learning.cyverse.org',
+                path: 'https://www.youtube.com/channel/UC-gvdjTz9rq6RovZ57LoDDA',
                 description:
                     'Get help on creating an account and learn about our services.',
                 icon: <SvgRocketIcon />,
@@ -54,7 +54,7 @@ const menuItems = [
             },
             {
                 label: 'CyVerse Learning',
-                path: 'https://learning.cyverse.org/en/latest/tutorials.html',
+                path: 'https://learning.cyverse.org',
                 description:
                     'Explore our learning materials in the popular “Read the Docs” formatting.',
                 icon: <SvgLearnIcon />,
@@ -62,7 +62,7 @@ const menuItems = [
             },
             {
                 label: 'Webinars',
-                path: 'https://learning.cyverse.org/en/latest/webinars.html',
+                path: 'https://www.youtube.com/@CyverseOrgProject',
                 description:
                     'Browse webinars on how to use CyVerse services.',
                 category: 'learn',
@@ -84,9 +84,8 @@ const menuItems = [
             },
             {
                 label: 'FAQ',
-                path: 'https://learning.cyverse.org/projects/faq',
-                description:
-                    'Answers to frequenty asked questions about CyVerse.',
+                path: "https://learning.cyverse.org/faq/",
+                description: 'Answers to frequently asked questions about CyVerse.',
                 category: 'support',
                 icon: <SvgForumIcon />,
             },

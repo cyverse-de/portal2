@@ -42,6 +42,8 @@ async function serviceRegistrationWorkflow(request) {
     logger.info(`Running native workflow for service ${service.name} and user ${user.username}`);
 
     const cfg = servicesConfig[request.service.approval_key];
+    if (!cfg)
+	return
 
     // LDAP: add user to service group
     if (cfg.ldapGroup)

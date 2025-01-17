@@ -28,7 +28,7 @@ async function userCreationWorkflow(user) {
     await irodsChMod("own", "rodsadmin", `/iplant/home/${user.username}`);
 
     // Mailchimp: subscribe user to newsletter 
-    if (process.env.MAILCHIMP_ENABLED)
+    if (process.env.MAILCHIMP_ENABLED.toLowerCase() === "true")
         await mailchimpSubscribe(user.email, user.first_name, user.last_name);
 }
 
@@ -74,7 +74,7 @@ async function userDeletionWorkflow(user) {
     }
 
     // Mailchimp: unsubscribe user from newsletter 
-    if (process.env.MAILCHIMP_ENABLED) {
+    if (process.env.MAILCHIMP_ENABLED.toLowerCase() === "true") {
         try {
             await mailchimpDelete(user.email);
         }

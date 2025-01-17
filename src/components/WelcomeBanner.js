@@ -71,7 +71,7 @@ const WelcomeBanner = ({ closeHandler }) => {
                             variant="contained"
                             color="primary"
                             size="large"
-                            href="https://learning.cyverse.org/en/latest/#"
+                            href="https://learning.cyverse.org"
                             target="_blank"
                         >
                             Learning Center
