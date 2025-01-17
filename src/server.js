@@ -122,7 +122,7 @@ app.prepare()
                 resave: false,
                 saveUninitialized: true,
                 cookie: {
-                    secure: process.env.SESSION_SECURE_COOKIE,
+                    secure: process.env.SESSION_SECURE_COOKIE.toLowerCase() === 'true',
                 }
             })
         )

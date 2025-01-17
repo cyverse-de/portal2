@@ -72,9 +72,8 @@ const Welcome = (props) => {
 
   return (
     <div>
-      <div id="home-announcement">Due to electrical maintenance @ Cyverse from Tuesday, October 22nd at 4 PM MST through Thursday, October 24th at 4 PM MST DNA Subway will be completely offline. The maintenance may extend through October 25th, although that is not expected.</div>
       <Grid container>
-        <Grid className={classes.blueSection} item xs={12} sm={12} md={6} lg={6} xl={6} align="center" style={{backgroundColor: '#0971AB'}}>
+        <Grid className={classes.blueSection} item xs={12} sm={12} md={6} lg={6} xl={6} align="center" style={{backgroundColor: '#0971ab'}}>
           <Left {...props} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={6} xl={6} align="center" className={classes.grid} style={{backgroundColor: '#ffffff'}}>

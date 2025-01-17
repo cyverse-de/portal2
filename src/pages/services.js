@@ -5,6 +5,7 @@ import { Launch as LaunchIcon, HelpOutlineOutlined as HelpIcon } from '@material
 import { Layout, SummaryCard, WelcomeBanner } from '../components'
 import { useUser } from '../contexts/user'
 import { WELCOME_BANNER_COOKIE } from '../constants'
+import DataLimitAnnouncement from '../components/DataLimitAnnouncement'
 const inlineIcons = require('../inline_icons.json')
 
 const Services = (props) => {
@@ -32,6 +33,7 @@ const Services = (props) => {
 
   return (
     <Layout title="Services">
+      <DataLimitAnnouncement />
       {welcomeBannerOpen && <WelcomeBanner closeHandler={handleCloseWelcomeBanner} />} 
       <Box mt={3}>
         <Typography variant="h6" component="h2">My Services</Typography>

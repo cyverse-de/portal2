@@ -1,4 +1,6 @@
 src/config.json
+.env.local
 .idea
 .next/
 node_modules/
+**/.DS_Store
