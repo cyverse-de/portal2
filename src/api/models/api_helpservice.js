@@ -1,17 +1,21 @@
 /* jshint indent: 2 */
 
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('api_helpservice', {
-    service_ptr_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      references: {
-        model: 'api_service',
-        key: 'id'
-      }
-    }
-  }, {
-    tableName: 'api_helpservice'
-  });
-};
+module.exports = function (sequelize, DataTypes) {
+    return sequelize.define(
+        'api_helpservice',
+        {
+            service_ptr_id: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                primaryKey: true,
+                references: {
+                    model: 'api_service',
+                    key: 'id',
+                },
+            },
+        },
+        {
+            tableName: 'api_helpservice',
+        }
+    )
+}
