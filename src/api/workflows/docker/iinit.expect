@@ -1,8 +1,0 @@
-#!/usr/bin/expect -f
-
-set timeout -1
-spawn iinit
-match_max 100000
-expect -exact "Enter your current iRODS password:"
-send -- "$env(IRODS_PASSWORD)\r"
-expect eof

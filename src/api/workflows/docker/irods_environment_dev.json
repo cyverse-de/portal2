@@ -1,7 +1,0 @@
-{
-  "irods_zone_name": "iplant",
-  "irods_host": "data.cyverse.rocks",
-  "irods_port": 1247,
-  "irods_user_name": "uportal_admin2",
-  "irods_authentication_file": "/usr/src/app/irodsA"
-}
