@@ -25,25 +25,6 @@ function run(strOrArray) {
     })
 }
 
-// Safer than run, escaping of args not required
-function runFile(cmd, args) {
-    console.log('run:', cmd, args.join(' '))
-
-    return new Promise(function (resolve, reject) {
-        execFile(cmd, args, (error, stdout, stderr) => {
-            console.log('run:stdout:', stdout)
-            console.log('run:stderr:', stderr)
-
-            if (error) {
-                console.log('run:error:', error)
-                reject(error)
-            } else {
-                resolve(stdout)
-            }
-        })
-    })
-}
-
 function mailchimpSubscribe(email, firstName, lastName) {
     const data = {
         email_address: email,
@@ -56,30 +37,30 @@ function mailchimpSubscribe(email, firstName, lastName) {
             ? process.env.MAILCHIMP_TAGS.split(',')
             : [],
     }
-    return runFile('curl', [
-        '--request',
-        'POST',
-        '--location',
-        '--header',
-        `Authorization: Basic ${process.env.MAILCHIMP_API_KEY}`,
-        '--header',
-        'Content-Type: application/json',
-        '--data',
-        JSON.stringify(data),
-        `${process.env.MAILCHIMP_URL}/lists/${process.env.MAILCHIMP_LIST_ID}/members`,
-    ])
+
+    const url = `${process.env.MAILCHIMP_URL}/lists/${process.env.MAILCHIMP_LIST_ID}/members`
+    const headers = {
+        Authorization: `Basic ${process.env.MAILCHIMP_API_KEY}`,
+        'Content-Type': 'application/json',
+    }
+    return fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+    }).then(res => res.text())
 }
 
 function mailchimpDelete(email) {
     const hash = crypto.createHash('md5').update(email).digest('hex')
-    return runFile('curl', [
-        '--request',
-        'POST',
-        '--location',
-        '--header',
-        `Authorization: Basic ${process.env.MAILCHIMP_API_KEY}`,
-        `${process.env.MAILCHIMP_URL}/lists/${process.env.MAILCHIMP_LIST_ID}/members/${hash}/actions/delete-permanent`,
-    ])
+    const url = `${process.env.MAILCHIMP_URL}/lists/${process.env.MAILCHIMP_LIST_ID}/members/${hash}/actions/delete-permanent`
+    const headers = {
+        Authorization: `Basic ${process.env.MAILCHIMP_API_KEY}`,
+        'Content-Type': 'application/json',
+    }
+    return fetch(url, {
+        method: 'POST',
+        headers,
+    }).then(res => res.text())
 }
 
 function mailmanUpdateSubscription(listName, email, subscribe) {
@@ -106,36 +87,38 @@ function mailmanUpdateSubscription(listName, email, subscribe) {
         endpoint = 'remove'
     }
 
-    return runFile('curl', [
-        '--location',
-        '-X',
-        'POST',
-        `${baseUrl}/${endpoint}?${params}`,
-    ])
+    return fetch(`${baseUrl}/${endpoint}?${params}`, {
+        method: 'POST',
+    })
 }
 
 function terrainGetKeycloakToken() {
-    return runFile('curl', [
-        '--location',
-        '--user',
-        process.env.TERRAIN_USER + ':' + process.env.TERRAIN_PASSWORD,
-        `${process.env.TERRAIN_URL}/token/keycloak`,
-    ])
+    return fetch(`${process.env.TERRAIN_URL}/token/keycloak`, {
+        method: 'GET',
+        headers: {
+            Authorization:
+                'Basic ' +
+                Buffer.from(
+                    process.env.TERRAIN_USER +
+                        ':' +
+                        process.env.TERRAIN_PASSWORD
+                ).toString('base64'),
+        },
+    }).then(res => res.text())
 }
 
 function terrainSetConcurrentJobLimits(token, username, limit) {
-    return runFile('curl', [
-        '--request',
-        'PUT',
-        '--location',
-        '--header',
-        `Authorization: Bearer ${token}`,
-        '--header',
-        'Content-Type: application/json',
-        '--data',
-        JSON.stringify({ concurrent_jobs: limit }),
-        `${process.env.TERRAIN_URL}/admin/settings/concurrent-job-limits/${username}`, //FIXME define URL in constants.js
-    ])
+    return fetch(
+        `${process.env.TERRAIN_URL}/admin/settings/concurrent-job-limits/${username}`,
+        {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ concurrent_jobs: limit }),
+        }
+    ).then(res => res.text())
 }
 
 function terrainSubmitViceAccessRequest(token, user, usage) {
@@ -146,33 +129,23 @@ function terrainSubmitViceAccessRequest(token, user, usage) {
         concurrent_jobs: 2, //FIXME hardcoded
     }
 
-    return runFile('curl', [
-        '--request',
-        'POST',
-        '--location',
-        '--header',
-        `Authorization: Bearer ${token}`,
-        '--header',
-        'Content-Type: application/json',
-        '--data',
-        JSON.stringify(data),
-        `${process.env.TERRAIN_URL}/requests/vice`, //FIXME define URL in constants.js
-    ])
+    return fetch(`${process.env.TERRAIN_URL}/requests/vice`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    }).then(res => res.text())
 }
 
 function terrainBootstrapRequest(token) {
-    return runFile('curl', [
-        '--location',
-        '--header',
-        `Authorization: Bearer ${token}`,
-        `${process.env.TERRAIN_URL}/secured/bootstrap`, //FIXME define URL in constants.js
-    ])
-}
-
-function escapeShell(cmd) {
-    if (typeof cmd != 'undefined' && cmd.length > 0)
-        return cmd.replace(/(["'`\\])/g, '\\$1')
-    return ''
+    return fetch(`${process.env.TERRAIN_URL}/secured/bootstrap`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    }).then(res => res.text())
 }
 
 module.exports = {
