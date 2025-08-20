@@ -15,15 +15,6 @@ const EmailAddress = models.account_emailaddress
 const EmailAddressToMailingList = models.api_emailaddressmailinglist
 
 const servicesConfig = {
-    ATMOSPHERE: {
-        ldapGroup: 'atmo-user',
-        mailingList: 'atmosphere-users',
-    },
-    BISQUE: {
-        irodsPath: 'bisque_data',
-        mailingList: 'bisque-users',
-        customAction: createBisqueUser,
-    },
     COGE: {
         irodsPath: 'coge_data',
     },
