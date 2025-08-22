@@ -25,44 +25,6 @@ function run(strOrArray) {
     })
 }
 
-function mailchimpSubscribe(email, firstName, lastName) {
-    const data = {
-        email_address: email,
-        status: 'subscribed',
-        merge_fields: {
-            FNAME: firstName,
-            LNAME: lastName,
-        },
-        tags: process.env.MAILCHIMP_TAGS
-            ? process.env.MAILCHIMP_TAGS.split(',')
-            : [],
-    }
-
-    const url = `${process.env.MAILCHIMP_URL}/lists/${process.env.MAILCHIMP_LIST_ID}/members`
-    const headers = {
-        Authorization: `Basic ${process.env.MAILCHIMP_API_KEY}`,
-        'Content-Type': 'application/json',
-    }
-    return fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data),
-    }).then(res => res.text())
-}
-
-function mailchimpDelete(email) {
-    const hash = crypto.createHash('md5').update(email).digest('hex')
-    const url = `${process.env.MAILCHIMP_URL}/lists/${process.env.MAILCHIMP_LIST_ID}/members/${hash}/actions/delete-permanent`
-    const headers = {
-        Authorization: `Basic ${process.env.MAILCHIMP_API_KEY}`,
-        'Content-Type': 'application/json',
-    }
-    return fetch(url, {
-        method: 'POST',
-        headers,
-    }).then(res => res.text())
-}
-
 function mailmanUpdateSubscription(listName, email, subscribe) {
     const baseUrl = `${process.env.MAILMAN_URL}/mailman/admin/${listName}/members`
 
@@ -150,8 +112,6 @@ function terrainBootstrapRequest(token) {
 
 module.exports = {
     run,
-    mailchimpSubscribe,
-    mailchimpDelete,
     mailmanUpdateSubscription,
     terrainGetKeycloakToken,
     terrainSetConcurrentJobLimits,

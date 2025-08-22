@@ -19,10 +19,6 @@ async function userCreationWorkflow(user) {
     if (!user) throw 'Missing required property'
 
     logger.info(`Running native workflow for user ${user.username}: creation`)
-
-    // Mailchimp: subscribe user to newsletter
-    if (process.env.MAILCHIMP_ENABLED.toLowerCase() === 'true')
-        await mailchimpSubscribe(user.email, user.first_name, user.last_name)
 }
 
 async function userPasswordUpdateWorkflow(user) {
@@ -38,15 +34,6 @@ async function userDeletionWorkflow(user) {
     if (!user || !user.emails) throw 'Missing required property'
 
     logger.info(`Running native workflow for user ${user.username}: deletion`)
-
-    // Mailchimp: unsubscribe user from newsletter
-    if (process.env.MAILCHIMP_ENABLED.toLowerCase() == 'true') {
-        try {
-            await mailchimpDelete(user.email)
-        } catch (e) {
-            console.error(e)
-        }
-    }
 
     // Mailman: unsubscribe from mailing lists
     if (process.env.MAILMAN_ENABLED) {

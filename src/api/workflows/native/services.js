@@ -104,28 +104,6 @@ async function addEmailToMailingList(email, listName) {
         await mailmanUpdateSubscription(listName, email, true)
 }
 
-async function createBisqueUser(request) {
-    const password = crypto.randomBytes(12).toString('hex')
-    const xml = `<user name="${request.user.username}">
-        <tag name="password" value="${password}" />
-        <tag name="email" value="${request.user.email}"/>
-        <tag name="display_name" value="${request.user.username}"/>
-    </user>`
-
-    const token = Buffer.from(
-        `${process.env.BISQUE_USER}:${process.env.BISQUE_PASSWORD}`
-    ).toString('base64')
-
-    logger.info(`POST request to ${process.env.BISQUE_URL}`)
-    return await axios.post(process.env.BISQUE_URL, xml, {
-        headers: {
-            'Content-Type': 'application/xml',
-            Authorization: `Basic ${token}`,
-        },
-        timeout: 30 * 1000,
-    })
-}
-
 // Called for workshop registration
 async function setViceJobLimit(request) {
     // Get auth token for admin account
