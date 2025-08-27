@@ -10,6 +10,7 @@ const {
 } = require('./lib')
 const { logger } = require('../../lib/logging')
 const models = require('../../models')
+const config = require('../../lib/config')
 const MailingList = models.api_mailinglist
 const EmailAddress = models.account_emailaddress
 const EmailAddressToMailingList = models.api_emailaddressmailinglist
@@ -41,38 +42,38 @@ async function serviceRegistrationWorkflow(request) {
         `Running native workflow for service ${service.name} and user ${user.username}`
     )
 
-    const cfg = servicesConfig[request.service.approval_key]
+    // const cfg = servicesConfig[request.service.approval_key]
 
     // LDAP: add user to service group
-    if (cfg.ldapGroup) await ldapAddUserToGroup(user.username, cfg.ldapGroup)
+    // if (cfg.ldapGroup) await ldapAddUserToGroup(user.username, cfg.ldapGroup)
 
     // IRODS: create service directory
-    if (cfg.irodsPath) {
-        const fullPath = `/${process.env['IRODS_ZONE_NAME']}/home/${user.username}/${cfg.irodsPath}`
-        await irodsMkDir(fullPath)
-        await irodsChMod('inherit', '', fullPath)
-        await irodsChMod('own', user.username, fullPath)
+    // if (cfg.irodsPath) {
+    //     const fullPath = `/${config.IRODS_ZONE_NAME}/home/${user.username}/${cfg.irodsPath}`
+    //     await irodsMkDir(fullPath)
+    //     await irodsChMod('inherit', '', fullPath)
+    //     await irodsChMod('own', user.username, fullPath)
 
-        if (cfg.irodsUser) await irodsChMod('own', cfg.irodsUser, fullPath)
-    }
+    //     if (cfg.irodsUser) await irodsChMod('own', cfg.irodsUser, fullPath)
+    // }
 
     // Add user's primary email to service mailing list(s)
-    if (cfg.mailingList) {
-        const lists = Array.isArray(cfg.mailingList)
-            ? cfg.mailingList
-            : [cfg.mailingList]
-        for (let list of lists) await addEmailToMailingList(user.email, list)
-    }
+    // if (cfg.mailingList) {
+    //     const lists = Array.isArray(cfg.mailingList)
+    //         ? cfg.mailingList
+    //         : [cfg.mailingList]
+    //     for (let list of lists) await addEmailToMailingList(user.email, list)
+    // }
 
     // Execute custom steps
-    if (cfg.customAction) {
-        const actions = Array.isArray(cfg.customAction)
-            ? cfg.customAction
-            : [cfg.customAction]
-        for (let fn of actions) {
-            if (typeof fn === 'function') await fn(request)
-        }
-    }
+    // if (cfg.customAction) {
+    //     const actions = Array.isArray(cfg.customAction)
+    //         ? cfg.customAction
+    //         : [cfg.customAction]
+    //     for (let fn of actions) {
+    //         if (typeof fn === 'function') await fn(request)
+    //     }
+    // }
 }
 
 async function addEmailToMailingList(email, listName) {
@@ -100,7 +101,7 @@ async function addEmailToMailingList(email, listName) {
         },
     })
 
-    if (process.env.MAILMAN_ENABLED)
+    if (config.MAILMAN_ENABLED)
         await mailmanUpdateSubscription(listName, email, true)
 }
 
@@ -116,7 +117,9 @@ async function setViceJobLimit(request) {
         obj.access_token,
         request.user.username,
         2
-    ) //FIXME hardcoded limit of 2
+    )
+
+    // FIXME hardcoded limit of 2
     console.log(resp)
 }
 

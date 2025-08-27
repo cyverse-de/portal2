@@ -6,6 +6,7 @@ const { ldapModify } = require('./workflows/native/lib.js')
 const { mailmanUpdateSubscription } = require('./workflows/native/lib')
 const sequelize = require('sequelize')
 const models = require('./models')
+const config = require('../lib/config')
 const User = models.account_user
 const MailingList = models.api_mailinglist
 const EmailAddress = models.account_emailaddress
@@ -140,7 +141,7 @@ router.delete(
         res.status(200).send('success')
 
         // Unsubscribe from all subscribed mailing lists in Mailman (do after response as to not delay it)
-        if (process.env.MAILMAN_ENABLED) {
+        if (config.MAILMAN_ENABLED) {
             for (const list of emailAddress.mailing_lists) {
                 if (
                     subscriptions.find(
@@ -254,7 +255,7 @@ router.post(
         res.status(200).send('success')
 
         // Update subscription status in Mailman (do after response as to not delay it)
-        if (process.env.MAILMAN_ENABLED)
+        if (config.MAILMAN_ENABLED)
             await mailmanUpdateSubscription(
                 mailingList.list_name,
                 email,

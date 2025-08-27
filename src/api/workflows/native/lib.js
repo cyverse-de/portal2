@@ -2,6 +2,7 @@
 const fs = require('fs')
 const { exec, execFile, execSync } = require('child_process')
 var crypto = require('crypto')
+const config = require('../../lib/config')
 
 // Escape args with escapeShell() or use runFile() instead
 function run(strOrArray) {
@@ -26,7 +27,7 @@ function run(strOrArray) {
 }
 
 function mailmanUpdateSubscription(listName, email, subscribe) {
-    const baseUrl = `${process.env.MAILMAN_URL}/mailman/admin/${listName}/members`
+    const baseUrl = `${config.MAILMAN_URL}/mailman/admin/${listName}/members`
 
     let params, endpoint
     if (subscribe) {
@@ -34,7 +35,7 @@ function mailmanUpdateSubscription(listName, email, subscribe) {
             subscribe_or_invite: 0,
             send_welcome_msg_to_this_batch: 0,
             subscribees_upload: email,
-            adminpw: process.env.MAILMAN_PASSWORD,
+            adminpw: config.MAILMAN_PASSWORD,
         }).toString()
 
         endpoint = 'add'
@@ -43,7 +44,7 @@ function mailmanUpdateSubscription(listName, email, subscribe) {
             send_unsub_ack_to_this_batch: 0,
             send_unsub_notifications_to_list_owner: 0,
             unsubscribees_upload: email,
-            adminpw: process.env.MAILMAN_PASSWORD,
+            adminpw: config.MAILMAN_PASSWORD,
         }).toString()
 
         endpoint = 'remove'
@@ -55,15 +56,13 @@ function mailmanUpdateSubscription(listName, email, subscribe) {
 }
 
 function terrainGetKeycloakToken() {
-    return fetch(`${process.env.TERRAIN_URL}/token/keycloak`, {
+    return fetch(`${config.TERRAIN_URL}/token/keycloak`, {
         method: 'GET',
         headers: {
             Authorization:
                 'Basic ' +
                 Buffer.from(
-                    process.env.TERRAIN_USER +
-                        ':' +
-                        process.env.TERRAIN_PASSWORD
+                    config.TERRAIN_USER + ':' + config.TERRAIN_PASSWORD
                 ).toString('base64'),
         },
     }).then(res => res.text())
@@ -71,7 +70,7 @@ function terrainGetKeycloakToken() {
 
 function terrainSetConcurrentJobLimits(token, username, limit) {
     return fetch(
-        `${process.env.TERRAIN_URL}/admin/settings/concurrent-job-limits/${username}`,
+        `${config.TERRAIN_URL}/admin/settings/concurrent-job-limits/${username}`,
         {
             method: 'PUT',
             headers: {
@@ -91,7 +90,7 @@ function terrainSubmitViceAccessRequest(token, user, usage) {
         concurrent_jobs: 2, //FIXME hardcoded
     }
 
-    return fetch(`${process.env.TERRAIN_URL}/requests/vice`, {
+    return fetch(`${config.TERRAIN_URL}/requests/vice`, {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -102,7 +101,7 @@ function terrainSubmitViceAccessRequest(token, user, usage) {
 }
 
 function terrainBootstrapRequest(token) {
-    return fetch(`${process.env.TERRAIN_URL}/secured/bootstrap`, {
+    return fetch(`${config.TERRAIN_URL}/secured/bootstrap`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token}`,

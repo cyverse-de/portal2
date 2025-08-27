@@ -1,18 +1,18 @@
 const { createLogger, format, transports, addColors } = require('winston')
 const { combine, timestamp, label, printf, colorize } = format
-const expressWinston = require("express-winston")
-const { getUserID } = require("./auth")
+const expressWinston = require('express-winston')
+const { getUserID } = require('./auth')
+const config = require('../../lib/config')
 
 //TODO move to config file
 const logLevel = 'debug'
-const logLabel = (process.env.NODE_ENV == 'production' ? 'PROD' : 'DEV')
+const logLabel = config.NODE_ENV == 'production' ? 'PROD' : 'DEV'
 
-const formatMeta = (meta) => {
-    const splat = meta[Symbol.for('splat')];
-    if (splat && splat.length)
-        return splat.join(' ');
-    return '';
-};
+const formatMeta = meta => {
+    const splat = meta[Symbol.for('splat')]
+    if (splat && splat.length) return splat.join(' ')
+    return ''
+}
 
 const logFormat = printf(
     ({ level, message, label, timestamp, ...meta }) =>
@@ -21,34 +21,55 @@ const logFormat = printf(
 
 const logger = createLogger({
     level: logLevel,
-    format: combine(label({ label: logLabel }), timestamp(), logFormat, colorize({ all: true })),
-    transports: [new transports.Console()]
+    format: combine(
+        label({ label: logLabel }),
+        timestamp(),
+        logFormat,
+        colorize({ all: true })
+    ),
+    transports: [new transports.Console()],
 })
 
 addColors({
-  error: 'red',
-  warn: 'yellow',
-  info: 'cyan',
-  debug: 'green'
+    error: 'red',
+    warn: 'yellow',
+    info: 'cyan',
+    debug: 'green',
 })
 
-const getLoggableUserID = (req) => getUserID(req) || "logged-out-user"
+const getLoggableUserID = req => getUserID(req) || 'logged-out-user'
 
 const requestLogger = expressWinston.logger({
-  transports: [new transports.Console()],
-  msg: (req, res) => {
-      const body = req && req.body ? JSON.stringify(req.body) : '';
-      return `HTTP ${req.ip} ${getLoggableUserID(req)} ${req.method} ${req.url} ${res.statusCode} ${res.responseTime}ms` +
-          (body.length > 2 ? "\n" + body : ''); // ignore empty body [] or {}
-  },
-  format: combine(label({ label: logLabel }), timestamp(), logFormat, colorize({ all: true })),
+    transports: [new transports.Console()],
+    msg: (req, res) => {
+        const body = req && req.body ? JSON.stringify(req.body) : ''
+        return (
+            `HTTP ${req.ip} ${getLoggableUserID(req)} ${req.method} ${
+                req.url
+            } ${res.statusCode} ${res.responseTime}ms` +
+            (body.length > 2 ? '\n' + body : '')
+        ) // ignore empty body [] or {}
+    },
+    format: combine(
+        label({ label: logLabel }),
+        timestamp(),
+        logFormat,
+        colorize({ all: true })
+    ),
 })
 
 const errorLogger = expressWinston.errorLogger({
-  transports: [new transports.Console()],
-  msg: (req, res, err) => 
-      `HTTP Error ${req.ip} ${getLoggableUserID(req)} ${req.method} ${req.url} ${err.message} ${res.statusCode} ${res.responseTime}ms`,
-  format: combine(label({ label: logLabel }), timestamp(), logFormat, colorize({ all: true })),
+    transports: [new transports.Console()],
+    msg: (req, res, err) =>
+        `HTTP Error ${req.ip} ${getLoggableUserID(req)} ${req.method} ${
+            req.url
+        } ${err.message} ${res.statusCode} ${res.responseTime}ms`,
+    format: combine(
+        label({ label: logLabel }),
+        timestamp(),
+        logFormat,
+        colorize({ all: true })
+    ),
 })
 
 module.exports = { logger, requestLogger, errorLogger }

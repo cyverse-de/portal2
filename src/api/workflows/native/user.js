@@ -14,6 +14,7 @@ const {
     mailmanUpdateSubscription,
 } = require('./lib')
 const { logger } = require('../../lib/logging')
+const config = require('../../lib/config')
 
 async function userCreationWorkflow(user) {
     if (!user) throw 'Missing required property'
@@ -36,7 +37,7 @@ async function userDeletionWorkflow(user) {
     logger.info(`Running native workflow for user ${user.username}: deletion`)
 
     // Mailman: unsubscribe from mailing lists
-    if (process.env.MAILMAN_ENABLED) {
+    if (config.MAILMAN_ENABLED) {
         for (const email of user.emails) {
             for (const mailingList of email.mailing_lists) {
                 try {

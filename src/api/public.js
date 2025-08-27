@@ -9,6 +9,7 @@ const { asyncHandler } = require('./lib/auth')
 const { encodePassword } = require('./lib/password')
 const Argo = require('./lib/argo')
 const serviceApprovers = require('./approvers/service')
+const config = require('../lib/config')
 const {
     userCreationWorkflow,
     userPasswordUpdateWorkflow,
@@ -142,7 +143,7 @@ router.put(
                     // fields must be encoded
                     return res.status(400).send('Validity test failed (1)')
             } else {
-                const index = (key % process.env.HONEYPOT_DIVISOR) - 1
+                const index = (key % config.HONEYPOT_DIVISOR) - 1
                 if (index >= 0 && index < HONEYPOT_FIELDS.length) {
                     const realKey = HONEYPOT_FIELDS[index]
                     fields[realKey] = fields[key] // replace encoded key with actual field name
@@ -323,18 +324,14 @@ router.put(
 
         if (oldPassword != '') {
             // existing user password reset
-            if (process.env.ARGO_ENABLED)
-                await submitUserWorkflow('update-password', user)
-            else await userPasswordUpdateWorkflow(user)
+            await userPasswordUpdateWorkflow(user)
         } else {
             // new user
             // Run user creation workflow
             logger.info(
                 `Running user creation workflow for user ${user.username}`
             )
-            if (process.env.ARGO_ENABLED)
-                await submitUserWorkflow('create-user', user)
-            else await userCreationWorkflow(user)
+            await userCreationWorkflow(user)
 
             // Grant access to default services
             logger.info(
@@ -360,39 +357,6 @@ router.put(
         }
     })
 )
-
-async function submitUserWorkflow(templateName, user) {
-    // Calculate number of days since epoch (needed for LDAP)
-    const daysSinceEpoch = Math.floor(new Date() / 8.64e7)
-
-    // Calculate uidNumber
-    // Old method: /repos/portal/cyverse_ldap/utils/get_uid_number.py
-    const uidNumber = user.id + process.env.UID_NUMBER_OFFSET
-
-    // Submit Argo workflow
-    return await Argo.submit('user.yaml', templateName, {
-        // User params
-        user_id_number: uidNumber,
-        user_id: user.username,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        password: user.password,
-        department: user.department,
-        organization: user.institution,
-        title: user.occupation.name,
-        daysSinceEpoch: daysSinceEpoch,
-
-        // Other params
-        portal_api_base_url: process.env.API_BASE_URL,
-        ldap_host: process.env.LDAP_HOST,
-        ldap_admin: process.env.LDAP_ADMIN,
-        ldap_password: process.env.LDAP_PASSWORD,
-        mailchimp_api_url: process.env.MAILCHIMP_URL,
-        mailchimp_api_key: process.env.MAILCHIMP_API_KEY,
-        mailchimp_list_id: process.env.MAILCHIMP_LIST_ID,
-    })
-}
 
 // Send reset password link
 router.post(

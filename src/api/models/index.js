@@ -9,8 +9,8 @@
 const fs = require('fs')
 const path = require('path')
 const { Sequelize } = require('sequelize')
+const config = require('../../lib/config')
 
-// Load config into process.env #FIXME in all other files this is handled by Next.js
 const env = require('node-env-file')
 env(__dirname + '../../../../.env.local', { raise: false })
 env(__dirname + '../../../../.env', { raise: false })
@@ -21,31 +21,25 @@ env(__dirname + '../../../../.env', { raise: false })
 
 console.log(
     'Connecting to db:',
-    process.env.DB_HOST,
-    process.env.DB_PORT,
-    process.env.DB_NAME,
-    process.env.DB_USER
+    config.DB_HOST,
+    config.DB_PORT,
+    config.DB_NAME,
+    config.DB_USER
 )
 const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
+    config.DB_NAME,
+    config.DB_USER,
+    config.DB_PASSWORD,
     {
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
+        host: config.DB_HOST,
+        port: config.DB_PORT,
         dialect: 'postgres',
-        logging: false, //process.env.DB_LOGGING,
+        logging: false,
         define: {
             timestamps: false,
             freezeTableName: true,
             underscored: true,
         },
-        //    pool: {
-        //      max: dbConfig.pool.max,
-        //      min: dbConfig.pool.min,
-        //      acquire: dbConfig.pool.acquire,
-        //      idle: dbConfig.pool.idle
-        //    }
     }
 )
 

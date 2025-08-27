@@ -13,6 +13,7 @@ const FormSubmissionConversation = models.api_formsubmissionconversation
 const { UI_ADMIN_FORM_SUBMISSION_URL } = require('../constants')
 const { emailGenericMessage } = require('./lib/email')
 const intercom = require('./lib/intercom')
+const config = require('../lib/config')
 
 //TODO move into module
 const like = (key, val) =>
@@ -298,10 +299,10 @@ async function sendFormSubmissionConfirmationMessage(submission) {
             )
     }
 
-    if (process.env.BCC_INTERCOM) {
+    if (config.BCC_INTERCOM) {
         const message = body + '\n\n' + linkText
         emailGenericMessage({
-            to: process.env.BCC_INTERCOM,
+            to: config.BCC_INTERCOM,
             subject: 'User Portal Form Submission',
             message,
         })
