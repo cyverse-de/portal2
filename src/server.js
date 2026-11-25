@@ -1,3 +1,5 @@
+const http = require('http')
+const { EventEmitter } = require('events')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -25,7 +27,12 @@ const serverConfig = config.getServerConfig()
 const sentryConfig = config.getSentryConfig()
 
 const isDevelopment = serverConfig.isDevelopment
-const app = next({ dev: isDevelopment })
+
+// Next.js and express-ws both accept websocket upgrades. Give each one its own
+// upgrade channel, so that only one of them handles a given socket.
+const nextUpgrades = new EventEmitter()
+const appUpgrades = new EventEmitter()
+const app = next({ dev: isDevelopment, httpServer: nextUpgrades })
 const nextHandler = app.getRequestHandler()
 
 // Configure Sentry error tracking -- should be done as early as possible
@@ -98,7 +105,17 @@ const keycloakClient = new Keycloak(
 app.prepare()
     .then(() => {
         const server = express()
-        const expressWS = require('express-ws')(server)
+        const httpServer = http.createServer(server)
+        require('express-ws')(server, appUpgrades)
+
+        httpServer.on('upgrade', (req, socket, head) => {
+            const target = req.url.startsWith('/_next/')
+                ? nextUpgrades
+                : appUpgrades
+
+            target.emit('upgrade', req, socket, head)
+        })
+
         const sockets = {} // Track websocket connections by username
 
         // Security headers on every response (applied first)
@@ -304,7 +321,7 @@ app.prepare()
         // Catch errors
         if (sentryConfig.dsn) server.use(Sentry.Handlers.errorHandler())
 
-        server.listen(serverConfig.port, err => {
+        httpServer.listen(serverConfig.port, err => {
             if (err) throw err
             if (isDevelopment)
                 console.log('!!!!!!!!! RUNNING IN DEV MODE !!!!!!!!!!')
