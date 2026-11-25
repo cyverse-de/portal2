@@ -175,7 +175,16 @@ const Service = ({ id, name, description, icon_url, service_url, launch }) => {
     )
 }
 
+/**
+ * Parses the request cookies into a plain object. The `cookie` package returns
+ * an object with a null-prototype parent, which fails the Next.js check for
+ * serializable props.
+ */
+const requestCookies = req => ({ ...parseCookie(req.headers.cookie || '') })
+
 export async function getServerSideProps({ req }) {
+    const cookies = requestCookies(req)
+
     try {
         // Check if API is available
         if (!req.api) {
@@ -183,13 +192,12 @@ export async function getServerSideProps({ req }) {
             return {
                 props: {
                     services: [],
-                    cookies: parseCookie(req.headers.cookie || ''),
+                    cookies,
                 },
             }
         }
 
         const services = await req.api.services()
-        const cookies = parseCookie(req.headers.cookie || '')
 
         // Handle case where API returns undefined or null
         if (services === undefined || services === null) {
@@ -237,7 +245,7 @@ export async function getServerSideProps({ req }) {
         return {
             props: {
                 services: [],
-                cookies: parseCookie(req.headers.cookie || ''),
+                cookies,
             },
         }
     }
