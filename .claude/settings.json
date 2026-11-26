@@ -1,0 +1,15 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(npm run dev)",
+            "Bash(npm run build)",
+            "Bash(npm run format)",
+            "Bash(npm test)",
+            "Bash(npm ci)",
+            "Bash(npm install)",
+            "Bash(curl -s http://localhost:3000*)",
+            "Bash(lsof -ti :3000)"
+        ],
+        "deny": ["Read(portal2.json)"]
+    }
+}
